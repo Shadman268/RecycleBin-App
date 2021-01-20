@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">RecycleBin</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_in">Sign In</string>
+    <string name="enter_email">Enter Email Address</string>
+    <string name="enter_pass">Enter Password</string>
+    <string name="already_registered">Already Registered?Sign In</string>
+    <string name="not_registered">Not Registered?Sign Up</string>
+    <string name="profile">My Profile</string>
+    <string name="sign_out">Sign Out</string>
+</resources>
