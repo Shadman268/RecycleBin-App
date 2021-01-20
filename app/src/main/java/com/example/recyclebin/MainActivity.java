@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.profile_menu){
 
+            startActivity(new Intent(MainActivity.this , SetUpActivity.class));
         }else if(item.getItemId() == R.id.sign_out_menu){
             firebaseAuth.signOut();
             startActivity(new Intent(MainActivity.this , SignInActivity.class));
