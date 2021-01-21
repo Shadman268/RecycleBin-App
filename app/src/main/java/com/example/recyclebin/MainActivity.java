@@ -11,13 +11,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth firebaseAuth;
-
+    private FirebaseFirestore firestore;
     private Toolbar mainToolbar;
 
 
@@ -42,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, SignInActivity.class));
             finish();
         }
+        
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
