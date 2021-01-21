@@ -98,29 +98,42 @@ public class SetUpActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.VISIBLE);
                 String name = mProfileName.getText().toString();
                 StorageReference imageRef = storageReference.child("Profile_pics").child(Uid + ".jpg");
-
-                if (!name.isEmpty() && mImageUri != null)
+                if(isPhotoSelected)
                 {
-                    imageRef.putFile(mImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isSuccessful())
-                            {
-                                saveToFireStore(task, name, imageRef);
+                    if (!name.isEmpty() && mImageUri != null)
+                    {
+                        imageRef.putFile(mImageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                if (task.isSuccessful())
+                                {
+                                    imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            saveToFireStore(task, name, uri);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    progressBar.setVisibility(View.INVISIBLE);
+                                    Toast.makeText(SetUpActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                }
                             }
-                            else
-                            {
-                                progressBar.setVisibility(View.INVISIBLE);
-                                Toast.makeText(SetUpActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
+                        });
+                    }
+                    else
+                    {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(SetUpActivity.this, "Please Select picture and write your name", Toast.LENGTH_SHORT).show();
+                    }
                 }
                 else
                 {
-                    progressBar.setVisibility(View.INVISIBLE);
-                    Toast.makeText(SetUpActivity.this, "Please Select picture and write your name", Toast.LENGTH_SHORT).show();
+                    saveToFireStore(null , name , mImageUri);
                 }
+
+
             }
         });
 
@@ -146,32 +159,22 @@ public class SetUpActivity extends AppCompatActivity {
 
     }
 
-    private void saveToFireStore(Task<UploadTask.TaskSnapshot> task, String name, StorageReference imageRef) {
-        imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+    private void saveToFireStore(Task<UploadTask.TaskSnapshot> task, String name, Uri downloadUri) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("image", downloadUri.toString());
+        firestore.collection("Users").document(Uid).set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onSuccess(Uri uri) {
-                downloadUri = uri;
-                HashMap<String, Object> map = new HashMap<>();
-                map.put("name", name);
-                map.put("image", downloadUri.toString());
-
-                firestore.collection("Users").document(Uid).set(map).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task)
-                    {
-                        if (task.isSuccessful()) {
-                            progressBar.setVisibility(View.INVISIBLE);
-                            Toast.makeText(SetUpActivity.this, "Profile Settings Saved", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(SetUpActivity.this, MainActivity.class));
-                            finish();
-                        }
-                        else
-                        {
-                            progressBar.setVisibility(View.INVISIBLE);
-                            Toast.makeText(SetUpActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    Toast.makeText(SetUpActivity.this, "Profile Settings Saved", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(SetUpActivity.this, MainActivity.class));
+                    finish();
+                } else {
+                    progressBar.setVisibility(View.INVISIBLE);
+                    Toast.makeText(SetUpActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
